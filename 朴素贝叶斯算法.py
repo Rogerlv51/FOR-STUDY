@@ -47,11 +47,11 @@ def NaiveBayes(Py, Px_y, x):
     :return: 返回所有label的估计概率
     '''
     #设置特征数目
-    featrueNum = 784
+    featrueNum = 784          # 这里说实话应该写个自动拾取数据集特征维度的代码，不然数据集变化后代码要手动调整
     #设置类别数目
     classNum = 10
     #建立存放所有标记的估计概率数组
-    P = [0] * classNum
+    P = [0] * classNum        
     #对于每一个类别，单独估计其概率
     for i in range(classNum):
         #初始化sum为0，sum为求和项。
