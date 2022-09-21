@@ -35,12 +35,12 @@ class KDTree:
         if len(data) == 0:
             return None
         # 算法3.2第2步：选择切分坐标轴, 从0开始（书中是从1开始）
-        l = depth % data.shape[1]
+        l = depth % data.shape[1]       # 这一步代码很巧妙，随着深度的加深，可以自动选定切分轴
         # 对数据进行排序
         data = data[data[:, l].argsort()]   # 对第0列的值进行排序，然后根据index按行重排data
         # 算法3.2第1步：将所有实例坐标的中位数作为切分点
         median_index = data.shape[0] // 2
-        # 获取结点在数据集中的位置
+        # 获取结点在原数据集中的位置
         node_index = [i for i, v in enumerate(self.data) if list(v) == list(data[median_index])]
         return Node(
             # 本结点
@@ -69,11 +69,12 @@ class KDTree:
     @staticmethod
     def _cal_node_distance(node1, node2):
         """计算两个结点之间的距离"""
-        return np.sqrt(np.sum(np.square(node1 - node2)))
+        return np.sqrt(np.sum(np.square(node1 - node2)))    # 欧式距离
 
+    ## kd-tree搜索算法，很关键！！！！
     def _search(self, point, tree=None, k=1, k_neighbor_sets=None, depth=0):
         if k_neighbor_sets is None:
-            k_neighbor_sets = []
+            k_neighbor_sets = []     # 创建一个空列表存储邻接点坐标
         if tree is None:
             return k_neighbor_sets
 
@@ -83,6 +84,7 @@ class KDTree:
             return self._update_k_neighbor_sets(k_neighbor_sets, k, tree, point)
 
         # 递归地向下访问kd树
+        # 这里实际上设置要查找的point点的维度是2
         if point[0][depth % k] < tree.value[depth % k]:
             direct = 'left'
             next_branch = tree.left_child
@@ -110,7 +112,7 @@ class KDTree:
     def _update_k_neighbor_sets(self, best, k, tree, point):
         # 计算目标点与当前结点的距离
         node_distance = self._cal_node_distance(point, tree.value)
-        if len(best) == 0:
+        if len(best) == 0:   # 如果邻接点集合里面是空的则添加当前节点进去
             best.append((node_distance, tree.index, tree.value))
         elif len(best) < k:
             # 如果“当前k近邻点集”元素数量小于k
